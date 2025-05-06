@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Helpers\DistanceCalculator;
-use Illuminate\Support\Facades\Storage;
 
 class AffiliateFilterService
 {
@@ -11,16 +10,20 @@ class AffiliateFilterService
     const float DUBLIN_OFFICE_LATITUDE = 53.3340285;
     const float DUBLIN_OFFICE_LONGITUDE = -6.257664;
 
+    protected string $affiliatesFilePath;
+
     public function __construct(
         protected AffiliateReaderService $reader,
-        protected DistanceCalculator $calculator
+        protected DistanceCalculator $calculator,
     )
-    {}
+    {
+        $this->affiliatesFilePath = config('affiliates.file_url');
+    }
 
     public function handle(): array
     {
         $results = [];
-        foreach ($this->reader->handle(Storage::path('affiliates.txt')) as $affiliate) {
+        foreach ($this->reader->handle($this->affiliatesFilePath) as $affiliate) {
             $distance = $this->calculator->calculate(
                 self::DUBLIN_OFFICE_LATITUDE,
                 self::DUBLIN_OFFICE_LONGITUDE,
